@@ -1,7 +1,7 @@
 "use client"
 
 import { motion } from "framer-motion"
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
 import Image from "next/image"
@@ -20,49 +20,64 @@ const skills = [
 export default function AboutPage() {
   const terminalRef = useRef(null)
   const skillsRef = useRef(null)
+  const [isTypingComplete, setIsTypingComplete] = useState(false)
+  const typingEffectRef = useRef(null)
 
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger)
 
-    // Terminal typing effect
-    const terminal = terminalRef.current
-    const text =
-      "Hello, I'm a frontend developer with a passion for creating beautiful and interactive web experiences. I specialize in React, Next.js, and modern CSS frameworks like Tailwind."
-    let i = 0
+    // Terminal typing effect - only run if not already completed
+    if (!isTypingComplete && terminalRef.current) {
+      // Clear any existing content first to prevent doubling
+      terminalRef.current.innerHTML = ""
+      
+      const text =
+        "Hello, I'm a frontend developer with a passion for creating beautiful and interactive web experiences. I specialize in React, Next.js, and modern CSS frameworks like Tailwind."
+      let i = 0
 
-    const typeWriter = () => {
-      if (i < text.length) {
-        terminal.innerHTML += text.charAt(i)
-        i++
-        setTimeout(typeWriter, 30)
+      const typeWriter = () => {
+        if (i < text.length) {
+          terminalRef.current.innerHTML += text.charAt(i)
+          i++
+          typingEffectRef.current = setTimeout(typeWriter, 30)
+        } else {
+          setIsTypingComplete(true)
+        }
       }
-    }
 
-    typeWriter()
+      typeWriter()
+    }
 
     // Skills animation
-    const skillBars = skillsRef.current.querySelectorAll(".skill-bar")
+    if (skillsRef.current) {
+      const skillBars = skillsRef.current.querySelectorAll(".skill-bar")
 
-    skillBars.forEach((bar, index) => {
-      gsap.fromTo(
-        bar,
-        { width: 0 },
-        {
-          width: `${skills[index].level}%`,
-          duration: 1.5,
-          ease: "power2.out",
-          scrollTrigger: {
-            trigger: bar,
-            start: "top 80%",
+      skillBars.forEach((bar, index) => {
+        gsap.fromTo(
+          bar,
+          { width: 0 },
+          {
+            width: `${skills[index].level}%`,
+            duration: 1.5,
+            ease: "power2.out",
+            scrollTrigger: {
+              trigger: bar,
+              start: "top 80%",
+              once: true, // Add this to ensure the animation only runs once
+            },
           },
-        },
-      )
-    })
+        )
+      })
+    }
 
     return () => {
+      // Clear the typing timeout on cleanup
+      if (typingEffectRef.current) {
+        clearTimeout(typingEffectRef.current)
+      }
       ScrollTrigger.getAll().forEach((trigger) => trigger.kill())
     }
-  }, [])
+  }, [isTypingComplete])
 
   return (
     <div className="container mx-auto px-4 py-20">
@@ -84,8 +99,8 @@ export default function AboutPage() {
         >
           <div className="w-64 h-64 mx-auto md:mx-0 relative">
             <Image
-              src="/placeholder.svg?height=300&width=300"
-              alt="Profile"
+                  src="/images/nik.jpg"
+                  alt="Profile"
               width={300}
               height={300}
               className="rounded-full object-cover border-4 border-primary"

@@ -7,7 +7,6 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent } from "@/components/ui/card"
 import { Send, Check, AlertCircle } from "lucide-react"
-import confetti from "canvas-confetti"
 
 export default function ContactPage() {
   const [formState, setFormState] = useState({
@@ -31,17 +30,28 @@ export default function ContactPage() {
 
     // Simulate form submission
     setTimeout(() => {
-      if (Math.random() > 0.2) {
-        // 80% chance of success
+      if (Math.random() > 0.2) { // 80% chance of success
         setStatus("success")
         setFormState({ name: "", email: "", message: "" })
-
-        // Trigger confetti effect
-        confetti({
-          particleCount: 100,
-          spread: 70,
-          origin: { y: 0.6 },
-        })
+        
+        // Fix for the confetti error - wrap in try/catch and use a simpler config
+        try {
+          // Use a simple configuration without promises
+          import('canvas-confetti').then(confettiModule => {
+            const confetti = confettiModule.default;
+            // Use a simpler configuration to avoid Promise issues
+            confetti({
+              particleCount: 100,
+              spread: 70,
+              origin: { y: 0.6 },
+              disableForReducedMotion: true
+            });
+          }).catch(err => {
+            console.log("Confetti error:", err);
+          });
+        } catch (error) {
+          console.log("Failed to load confetti:", error);
+        }
       } else {
         setStatus("error")
       }

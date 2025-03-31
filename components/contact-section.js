@@ -1,18 +1,31 @@
 "use client"
 
-import { useRef, useState } from "react"
+import { useRef, useState, useEffect } from "react"
 import { motion, useInView } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import Link from "next/link"
 import { ArrowRight, Mail, MapPin, Phone, Check, AlertCircle } from "lucide-react"
-import confetti from "canvas-confetti"
-
 
 export default function ContactSection() {
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true, margin: "-100px" })
+  
+  // Add state for confetti function
+  const [confettiFn, setConfettiFn] = useState(null)
+  
+  // Load confetti only on client side
+  useEffect(() => {
+    // Only import confetti on the client side
+    if (typeof window !== 'undefined') {
+      import('canvas-confetti').then((module) => {
+        setConfettiFn(() => module.default)
+      }).catch(err => {
+        console.log("Failed to load confetti:", err)
+      })
+    }
+  }, [])
   
   // Add state for form handling
   const [formState, setFormState] = useState({
@@ -40,12 +53,19 @@ export default function ContactSection() {
         setStatus("success")
         setFormState({ name: "", email: "", message: "" })
         
-        // Trigger confetti effect directly
-        confetti({
-          particleCount: 100,
-          spread: 70,
-          origin: { y: 0.6 }
-        })
+        // Safely trigger confetti effect
+        try {
+          if (confettiFn) {
+            confettiFn({
+              particleCount: 100,
+              spread: 70,
+              origin: { y: 0.6 },
+              disableForReducedMotion: true
+            })
+          }
+        } catch (error) {
+          console.log("Confetti error:", error)
+        }
       } else {
         setStatus("error")
       }

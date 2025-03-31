@@ -70,6 +70,25 @@ export default function HeroSection() {
     }
   }, [])
 
+  // Function to handle smooth scrolling to the next section
+  const scrollToNextSection = () => {
+    // Find the next section (likely the About or Projects section)
+    const nextSection = document.getElementById('about') || document.getElementById('projects')
+    
+    if (nextSection) {
+      nextSection.scrollIntoView({ 
+        behavior: 'smooth',
+        block: 'start'
+      })
+    } else {
+      // Fallback: scroll down by viewport height if no specific section found
+      window.scrollTo({
+        top: window.innerHeight,
+        behavior: 'smooth'
+      })
+    }
+  }
+
   return (
     <section className="min-h-screen flex flex-col justify-center relative pt-20">
       <div className="container mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
@@ -158,7 +177,7 @@ export default function HeroSection() {
               className="w-full h-full"
             >
               <Image
-                src="/images/nik.jpg" // Replace with your actual profile image
+                src="/images/nik.jpg"
                 alt="Nikhil Ranjan"
                 fill
                 sizes="(max-width: 768px) 100vw, 350px"
@@ -175,14 +194,21 @@ export default function HeroSection() {
       </div>
 
       <motion.div
-        className="absolute bottom-10 left-1/2 -translate-x-1/2"
+        className="absolute bottom-10 left-1/2 -translate-x-1/2 cursor-pointer"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.8 }}
+        onClick={scrollToNextSection}
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.95 }}
+        role="button"
+        aria-label="Scroll down"
+        tabIndex={0}
+       
       >
         <div className="flex flex-col items-center">
           <span className="text-sm text-muted-foreground mb-2">Scroll Down</span>
-          <div className="w-6 h-10 border-2 border-muted-foreground rounded-full flex justify-center p-1">
+          <div className="w-6 h-10 border-2 border-muted-foreground rounded-full flex justify-center p-1 hover:border-primary transition-colors">
             <motion.div
               className="w-1 h-1 bg-primary rounded-full"
               animate={{
